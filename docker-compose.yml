@@ -1,0 +1,85 @@
+services:
+    php:
+        build:
+            context: ./php
+            dockerfile: Dockerfile
+        restart: always
+        tty: true
+        environment:
+            #https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
+            - "SSL_MODE=off"
+            - "AUTORUN_ENABLED=false"
+            - "PHP_MEMORY_LIMIT=512M"
+            - "PHP_POST_MAX_SIZE=50M"
+            - "PHP_UPLOAD_MAX_FILE_SIZE=50M"
+            - "PHP_MAX_EXECUTION_TIME=60"
+            - "PHP_OPCACHE_ENABLE=1"
+            - "APP_PATH=${APP_PATH:-./..}"
+        volumes:
+            - "${APP_PATH:-./..}:/var/www/html"
+        depends_on:
+            - mysql
+            - redis
+        networks:
+            - net
+    mysql:
+        image: mysql:8.0
+        restart: always
+        tty: true
+        environment:
+            - "MYSQL_ROOT_PASSWORD=${DB_PASSWORD}"
+            - "MYSQL_USER=${DB_USERNAME}"
+            - "MYSQL_PASSWORD=${DB_PASSWORD}"
+            - "MYSQL_DATABASE=${DB_DATABASE}"
+        volumes:
+            - database:/var/lib/mysql
+        ports:
+            - "${DB_PORT:-3306}:3306"
+        networks:
+            - net
+        healthcheck:
+            test:
+                - CMD
+                - mysqladmin
+                - ping
+                - '-p${DB_PASSWORD}'
+            retries: 3
+            timeout: 5s
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        environment:
+            - "PMA_HOST=${DB_HOST}"
+            - "PMA_USER=${DB_USERNAME}"
+            - "PMA_PASSWORD=${DB_PASSWORD}"
+            - "UPLOAD_LIMIT=64M"
+        ports:
+            - 8080:80
+        depends_on:
+            - mysql
+        networks:
+            - net
+    redis:
+        image: 'redis:alpine'
+        restart: always
+        ports:
+            - '${REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'redis:/data'
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - ping
+            retries: 3
+            timeout: 5s
+        networks:
+            - net
+volumes:
+    database:
+        driver: local
+    redis:
+        driver: local
+networks:
+    net:
+        driver: bridge
