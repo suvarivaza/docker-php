@@ -13,7 +13,7 @@ Services:
 
 ### Install
 ```
-git clone https://github.com/suvarivaza/laravel-docker-traefik.git docker
+git clone https://github.com/suvarivaza/docker-php.git docker
 cd docker
 ```
 
