@@ -1,8 +1,10 @@
-This is docker compose environment for Laravel and other PHP applications!
+This is docker compose environment for Laravel and other PHP websites and applications!
 
 - Ready for development and production!
 - Easy to start!
 - Free Let's Encrypt SSL certificates!
+- Secure for phpmyadmin in production!
+
 
 Services:
 - traefik https://github.com/traefik/traefik
@@ -22,32 +24,34 @@ cd docker
 make help
 ```
 
+
 ### Start DEV
 
 ```
 make init-dev
-(set .env variables)
+# edit .env variables.
+make dev-setup
 make up
 ```
-Do not forget set .env variables after command: make init-dev!
-
-> - The app will be: http://localhost/
-> - Phpmyadmin: http://localhost:8080/
-
-
 
 
 ### Production
 
 ```
 make init-prod
-(set .env variables)
+# edit .env variables
+# change email in traefik/config/traefik-prod.yml
 make up
 ```
-Do not forget set .env variables after command: make init-prod!
+
+Enjoy!
+
+> - App: https://myproject.local
+> - Traefik:  https://traefik.myproject.local
+> - Phpmyadmin: https://pma.myproject.local
 
 
-### Main commands:
+### Some commands:
 ```
 make up
 make build
@@ -84,7 +88,6 @@ make npm run build
 make npm run dev
 ..and others npm commands..
 ```
-
 
 
 ### Additionally

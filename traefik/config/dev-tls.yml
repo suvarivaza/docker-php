@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: "/certs/rucombo.local.crt"
+      keyFile: "/certs/rucombo.local.key"

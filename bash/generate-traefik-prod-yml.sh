@@ -1,0 +1,33 @@
+#!/bin/bash
+cat > ../traefik/config/traefik-prod.yml <<EOF
+log:
+  level: INFO
+
+api:
+  dashboard: true
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+          permanent: true
+
+  https:
+    address: ":443"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+
+certificatesResolvers:
+  le:
+    acme:
+      tlsChallenge: true
+      email: "$TRAEFIK_EMAIL"
+      storage: "/letsencrypt/acme.json"
+EOF

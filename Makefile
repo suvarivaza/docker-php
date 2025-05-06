@@ -35,13 +35,72 @@ help:
 
 
 #============= Init ===============#
+
 init-dev: ## Init dev environments
-	cp .env.dev .env
+	cp .env.dev.example .env && \
+	make set-userid-groupid
 
 init-prod: ## Init prod environments
-	cp .env.prod .env
+	cp .env.prod.example .env && \
+	make set-userid-groupid
+
+set-userid-groupid:
+	echo "" >> .env && \
+    echo "# Host user id and group id (for correct permissions inside docker)" >> .env && \
+    echo "USER_ID=$(shell id -u)" >> .env && \
+    echo "GROUP_ID=$(shell id -g)" >> .env
+
+
+#============= Setup===============#
+
+dev-setup:  ## Setup all for dev
+	make set-dev-local-hosts
+	make create-traefik-local-cert-config
+	make create-local-ssl-cert-mkcert
+
+
+set-dev-local-hosts: ## Setup dev local hosts (use this command only for dev!)
+	@if ! grep -q "^127.0.0.1 $(APP_URL)$$" /etc/hosts; then \
+		echo "127.0.0.1 $(APP_URL)" | sudo tee -a /etc/hosts > /dev/null; \
+	else \
+		echo "↪️  Entry '127.0.0.1 $(APP_URL)' already exists in /etc/hosts"; \
+	fi
+	@if ! grep -q "^127.0.0.1 traefik.$(APP_URL)$$" /etc/hosts; then \
+		echo "127.0.0.1 traefik.$(APP_URL)" | sudo tee -a /etc/hosts > /dev/null; \
+	else \
+		echo "↪️  Entry '127.0.0.1 traefik.$(APP_URL)' already exists in /etc/hosts"; \
+	fi
+	@if ! grep -q "^127.0.0.1 pma.$(APP_URL)$$" /etc/hosts; then \
+    	echo "127.0.0.1 pma.$(APP_URL)" | sudo tee -a /etc/hosts > /dev/null; \
+    else \
+    	echo "↪️  Entry '127.0.0.1 pma.$(APP_URL)' already exists in /etc/hosts"; \
+    fi
+	tail /etc/hosts
+
+
+create-traefik-local-cert-config:
+	@echo "tls:\n  certificates:\n    - certFile: \"/certs/$(APP_URL).crt\"\n      keyFile: \"/certs/$(APP_URL).key\"" > ./traefik/config/dev-tls.yml
+
+
+create-local-ssl-cert-mkcert: ## Generate SSL cert for local domains with mkcert (recommend!)
+	brew install mkcert && \
+	mkcert -install && \
+	mkcert \
+      -key-file ./traefik/certs/$(APP_URL).key \
+      -cert-file ./traefik/certs/$(APP_URL).crt \
+      $(APP_URL) traefik.$(APP_URL) pma.$(APP_URL)
+
+
+create-local-ssl-cert:
+	openssl req -x509 -nodes -newkey rsa:2048 \
+      -keyout "./traefik/certs/$(APP_URL).key" \
+      -out "./traefik/certs/$(APP_URL).crt" \
+      -days 365 \
+      -subj "/CN=$(APP_URL)"
+
 
 #============= Start ===============#
+
 up: ## Start all services | up one service: make up php
 	docker compose $(DOCKER_ENV_FILES) up -d --build $(ARGS)
 
@@ -86,6 +145,7 @@ config: ## Show containers.
 
 
 #============= Laravel ===============#
+
 laravel-install: ## Install Laravel
 	docker compose exec php composer create-project laravel/laravel example-app \
 	&& mv -f $(APP_PATH)/example-app/* $(APP_PATH)/ && mv -f $(APP_PATH)/example-app/.* $(APP_PATH)/ && rm -rf $(APP_PATH)/example-app

@@ -1,3 +1,5 @@
 .github/
 .DS_Store
 .env
+mysql/data/*
+traefik/certs/*

@@ -1,85 +1,142 @@
+version: "3.9"
+
 services:
-    php:
-        build:
-            context: ./php
-            dockerfile: Dockerfile
-        restart: always
-        tty: true
-        environment:
-            #https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
-            - "SSL_MODE=off"
-            - "AUTORUN_ENABLED=false"
-            - "PHP_MEMORY_LIMIT=512M"
-            - "PHP_POST_MAX_SIZE=50M"
-            - "PHP_UPLOAD_MAX_FILE_SIZE=50M"
-            - "PHP_MAX_EXECUTION_TIME=60"
-            - "PHP_OPCACHE_ENABLE=1"
-            - "APP_PATH=${APP_PATH:-./..}"
-        volumes:
-            - "${APP_PATH:-./..}:/var/www/html"
-        depends_on:
-            - mysql
-            - redis
-        networks:
-            - net
-    mysql:
-        image: mysql:8.0
-        restart: always
-        tty: true
-        environment:
-            - "MYSQL_ROOT_PASSWORD=${DB_PASSWORD}"
-            - "MYSQL_USER=${DB_USERNAME}"
-            - "MYSQL_PASSWORD=${DB_PASSWORD}"
-            - "MYSQL_DATABASE=${DB_DATABASE}"
-        volumes:
-            - database:/var/lib/mysql
-        ports:
-            - "${DB_PORT:-3306}:3306"
-        networks:
-            - net
-        healthcheck:
-            test:
-                - CMD
-                - mysqladmin
-                - ping
-                - '-p${DB_PASSWORD}'
-            retries: 3
-            timeout: 5s
-    phpmyadmin:
-        image: phpmyadmin
-        restart: always
-        environment:
-            - "PMA_HOST=${DB_HOST}"
-            - "PMA_USER=${DB_USERNAME}"
-            - "PMA_PASSWORD=${DB_PASSWORD}"
-            - "UPLOAD_LIMIT=64M"
-        ports:
-            - 8080:80
-        depends_on:
-            - mysql
-        networks:
-            - net
-    redis:
-        image: 'redis:alpine'
-        restart: always
-        ports:
-            - '${REDIS_PORT:-6379}:6379'
-        volumes:
-            - 'redis:/data'
-        healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
-            retries: 3
-            timeout: 5s
-        networks:
-            - net
+  traefik:
+    image: "traefik:v3.0"
+    container_name: ${COMPOSE_PROJECT_NAME}-traefik
+    restart: always
+    profiles: [ dev, prod ]
+    ports:
+      # Открываем 80 и 443 порты на хосте
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Traefik следит за событиями Docker через сокет
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+    labels:
+      # Включить маршрутизацию Traefik для самого себя (Dashboard)
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${APP_URL}`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=http,https"
+      - "traefik.http.routers.traefik.tls=true"
+    networks:
+      - net
+
+  php:
+    container_name: ${COMPOSE_PROJECT_NAME}-php
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    profiles: [ dev, prod ]
+    restart: always
+    tty: true
+    environment:
+      # https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
+      - APP_PATH
+      - USER_ID
+      - GROUP_ID
+      - SSL_MODE=off
+      - AUTORUN_ENABLED=false
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_POST_MAX_SIZE=50M
+      - PHP_UPLOAD_MAX_FILE_SIZE=50M
+      - PHP_MAX_EXECUTION_TIME=60
+      - PHP_OPCACHE_ENABLE=1
+      - APACHE_DOCUMENT_ROOT="/var/www/html"
+    volumes:
+      # Монтируем проект внутрь контейнера
+      - "${APP_PATH:-./..}:/var/www/html"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - net
+    labels:
+      # Включаем Traefik
+      - "traefik.enable=true"
+      - "traefik.http.services.php.loadbalancer.server.port=8080"  # Указываем внутренний порт контейнера
+      - "traefik.http.routers.php.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.php.entrypoints=http,https"
+      - "traefik.http.routers.php.tls=true"
+
+  mysql:
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME}-mysql
+    restart: always
+    profiles: [ dev, prod ]
+    tty: true
+    environment:
+      # Основные настройки MySQL
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    networks:
+      - net
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
+      retries: 3
+      timeout: 5s
+
+  redis:
+    image: redis:alpine
+    container_name: ${COMPOSE_PROJECT_NAME}-redis
+    restart: always
+    profiles: [ dev, prod ]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis:/data
+    networks:
+      - net
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      retries: 3
+      timeout: 5s
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: ${COMPOSE_PROJECT_NAME}-phpmyadmin
+    profiles: [ dev, prod ]
+    restart: unless-stopped
+    environment:
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
+    networks:
+      - net
+    labels:
+      # Включаем Traefik
+      - "traefik.enable=true"
+      - "traefik.http.services.pma.loadbalancer.server.port=80"
+      - "traefik.http.routers.pma.rule=Host(`pma.${APP_URL}`)"
+      - "traefik.http.routers.pma.entrypoints=http,https"
+      - "traefik.http.routers.pma.tls=true"
+  node:
+    image: node:18-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}-node
+    profiles: [ dev ]
+    restart: always
+    tty: true
+    ports:
+      - "5173:5173"
+    volumes:
+      - "${APP_PATH:-./..}:/var/www"
+    working_dir: /var/www
+    networks:
+      - net
+
+# Определяем именованные тома для хранения данных
 volumes:
-    database:
-        driver: local
-    redis:
-        driver: local
+  redis:
+
+# Общая сеть между всеми сервисами
 networks:
-    net:
-        driver: bridge
+  net:

@@ -1,0 +1,38 @@
+log:
+  level: DEBUG
+
+api:
+  dashboard: true
+  insecure: true
+
+serversTransport:
+  insecureSkipVerify: true
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+          permanent: true # 301 redirect http -> https
+
+  https:
+    address: ":443"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+
+  # ssl certs for dev
+  file:
+    directory: "/etc/traefik/dynamic"
+    watch: true
+
+# only for tests
+#certificatesResolvers:
+#  le:
+#    acme:
+#      caserve: "https://acme-staging-v02.api.letsencrypt.org/directory"
