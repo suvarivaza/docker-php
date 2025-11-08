@@ -1,10 +1,11 @@
 version: "3.9"
 
 services:
+
   traefik:
     image: "traefik:v3.0"
     container_name: ${COMPOSE_PROJECT_NAME}-traefik
-    restart: always
+    restart: unless-stopped
     profiles: [ dev, prod ]
     ports:
       # Открываем 80 и 443 порты на хосте
@@ -30,7 +31,7 @@ services:
       context: ./php
       dockerfile: Dockerfile
     profiles: [ dev, prod ]
-    restart: always
+    restart: unless-stopped
     tty: true
     environment:
       # https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
@@ -64,7 +65,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: ${COMPOSE_PROJECT_NAME}-mysql
-    restart: always
+    restart: unless-stopped
     profiles: [ dev, prod ]
     tty: true
     environment:
@@ -88,7 +89,7 @@ services:
   redis:
     image: redis:alpine
     container_name: ${COMPOSE_PROJECT_NAME}-redis
-    restart: always
+    restart: unless-stopped
     profiles: [ dev, prod ]
     ports:
       - "${REDIS_PORT:-6379}:6379"
@@ -119,11 +120,12 @@ services:
       - "traefik.http.routers.pma.rule=Host(`pma.${APP_URL}`)"
       - "traefik.http.routers.pma.entrypoints=http,https"
       - "traefik.http.routers.pma.tls=true"
+
   node:
     image: node:18-alpine
     container_name: ${COMPOSE_PROJECT_NAME}-node
     profiles: [ dev ]
-    restart: always
+    restart: unless-stopped
     tty: true
     ports:
       - "5173:5173"

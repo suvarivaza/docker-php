@@ -1,5 +1,6 @@
 .github/
 .DS_Store
 .env
-mysql/data/*
-traefik/certs/*
+/mysql/data/*
+/traefik/certs/*
+/traefik/config/dev-tls.yml
