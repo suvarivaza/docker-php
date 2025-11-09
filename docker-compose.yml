@@ -26,18 +26,21 @@ services:
       - net
 
   php:
-    container_name: ${COMPOSE_PROJECT_NAME}-php
     build:
       context: ./php
       dockerfile: Dockerfile
+      args:
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+        APP_PATH: ${APP_PATH}
+        PHP_WEBSERVER: ${PHP_WEBSERVER}
+        PHP_VERSION: ${PHP_VERSION}
+    container_name: ${COMPOSE_PROJECT_NAME}-php
     profiles: [ dev, prod ]
     restart: unless-stopped
     tty: true
     environment:
       # https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
-      - APP_PATH
-      - USER_ID
-      - GROUP_ID
       - SSL_MODE=off
       - AUTORUN_ENABLED=false
       - PHP_MEMORY_LIMIT=512M
@@ -46,9 +49,11 @@ services:
       - PHP_MAX_EXECUTION_TIME=60
       - PHP_OPCACHE_ENABLE=1
       - APACHE_DOCUMENT_ROOT="/var/www/html"
+      - NGINX_WEBROOT="/var/www/html"
     volumes:
       # Монтируем проект внутрь контейнера
-      - "${APP_PATH:-./..}:/var/www/html"
+      - ${APP_PATH}:/var/www/html
+      - ./nginx/custom.conf:/etc/nginx/server-opts.d/custom.conf
     depends_on:
       - mysql
       - redis
@@ -130,7 +135,7 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - "${APP_PATH:-./..}:/var/www"
+      - "${APP_PATH}:/var/www"
     working_dir: /var/www
     networks:
       - net

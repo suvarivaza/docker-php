@@ -12,62 +12,51 @@ Services:
 - mysql 
 - phpmyadmin 
 - redis
+- node
 
 ### Install
 ```
 git clone https://github.com/suvarivaza/docker-php.git docker
 cd docker
-```
-
-### Help
-```
 make help
 ```
-
-
-### Start DEV
-
-```
-make init-dev
-# edit .env variables.
-make dev-setup
-make up
-```
-
 
 ### Production
 
 ```
-make init-prod
-# edit .env variables
-# change email in traefik/config/traefik-prod.yml
-make up
+1. make init-prod
+2. edit .env variables
+3. make up
 ```
 
-Enjoy!
 
-> - App: https://myproject.local
-> - Traefik:  https://traefik.myproject.local
-> - Phpmyadmin: https://pma.myproject.local
+### DEV
+
+```
+1. make init-dev
+2. edit .env variables
+3. make up
+```
+if you need SSL in DEV just do: make dev-setup-ssl
+
+- App: https://myproject.local
+- Traefik:  https://traefik.myproject.local
+- Phpmyadmin: https://pma.myproject.local
 
 
 ### Some commands:
 ```
 make up
-make build
-make restart
 make stop
+make restart
 make down
 make logs
 ```
 
-Specific service:
+You can use specific service:
 ```
 make up php
-make build php
-make restart php
 make stop php
-make down php
 make logs php
 make connect php
 ```
@@ -93,7 +82,7 @@ make npm run dev
 ### Additionally
 
 ```
-make db-import filepath=path/db.sql
+make db-import DB_FILE=path/db.sql
 make portainer-install
 ```
 

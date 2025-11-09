@@ -18,6 +18,8 @@ services:
       - "letsencrypt:/letsencrypt"
 
   php:
+    build:
+      target: production
     labels:
       # Let's Encrypt SSL Cert
       - "traefik.http.routers.php.tls=true"

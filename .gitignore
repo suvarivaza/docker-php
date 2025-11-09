@@ -4,3 +4,4 @@
 /mysql/data/*
 /traefik/certs/*
 /traefik/config/dev-tls.yml
+/db.sql

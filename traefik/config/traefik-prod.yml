@@ -26,5 +26,5 @@ certificatesResolvers:
   le:
     acme:
       tlsChallenge: true
-      email: admin@yourdomain.com
+      email: "admin@yourdomain.com"
       storage: "/letsencrypt/acme.json"
