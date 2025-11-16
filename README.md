@@ -21,6 +21,21 @@ cd docker
 make help
 ```
 
+### DEV
+
+```
+1. make init-dev
+2. edit .env variables
+3. make dev-setup-ssl (if you need SSL in DEV)
+4. make up
+```
+Enjoy!
+- App: https://myproject.localhost
+- Traefik:  https://traefik.myproject.localhost
+- Phpmyadmin: https://pma.myproject.localhost
+
+
+
 ### Production
 
 ```
@@ -28,20 +43,6 @@ make help
 2. edit .env variables
 3. make up
 ```
-
-
-### DEV
-
-```
-1. make init-dev
-2. edit .env variables
-3. make up
-```
-if you need SSL in DEV just do: make dev-setup-ssl
-
-- App: https://myproject.local
-- Traefik:  https://traefik.myproject.local
-- Phpmyadmin: https://pma.myproject.local
 
 
 ### Some commands:

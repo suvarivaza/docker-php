@@ -216,12 +216,17 @@ download-db: ## download db dump by ssh: make download-db SSH=root@123.456.78.90
 
 .PHONY: download-db-dev
 download-db-dev: ## make download-db-dev SSH=root@123.456.78.90 SSH_DB_USER=dbuser SSH_DB_NAME=dbname
-	ssh $(SSH) "mysqldump -u $(SSH_DB_USER) -p $(SSH_DB_NAME) --where='true limit 2000' | gzip" > db.sql.gz && \
+	ssh $(SSH) "mysqldump -u $(SSH_DB_USER) -p $(SSH_DB_NAME) --where='true limit 10000' | gzip" > db.sql.gz && \
 	gunzip db.sql.gz
 
 .PHONY: db-import
-db-import: ## Import database from file: make db-import DB_FILE=db.sql
-	sudo docker exec -i $(COMPOSE_PROJECT_NAME)-mysql mysql -u $(DB_USERNAME) -p$(DB_PASSWORD) $(DB_DATABASE) < $(DB_FILE)
+db-import: ## Import database from file: make db-import
+#	rm -r mysql/data/$(DB_USERNAME)/*
+	sudo docker exec -it $(COMPOSE_PROJECT_NAME)-mysql mysql -u $(DB_USERNAME) -p$(DB_PASSWORD) -e "\
+    DROP DATABASE $(DB_DATABASE); \
+    CREATE DATABASE $(DB_DATABASE) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" && \
+	sudo docker exec -i $(COMPOSE_PROJECT_NAME)-mysql mysql -u $(DB_USERNAME) -p$(DB_PASSWORD) $(DB_DATABASE) < db.sql
+
 
 #.PHONY: db_import
 #db_import: ##
@@ -292,8 +297,9 @@ create-local-ssl-cert:
 # Spaces are important!
 .PHONY: add-traefik-local-cert-in-config
 add-traefik-local-cert-in-config:
+	rm ./traefik/config/dev-tls.yml
 	echo "Adding SSL certs to ./traefik/config/dev-tls.yml"; \
-	@echo "tls:\n  certificates:\n    - certFile: \"/certs/$(APP_URL).crt\"\n      keyFile: \"/certs/$(APP_URL).key\"" > ./traefik/config/dev-tls.yml
+	echo "tls:\n  certificates:\n    - certFile: \"/certs/$(APP_URL).crt\"\n      keyFile: \"/certs/$(APP_URL).key\"" > ./traefik/config/dev-tls.yml
 
 
 
