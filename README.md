@@ -26,7 +26,7 @@ make help
 ```
 1. make init-dev
 2. edit .env variables
-3. make dev-setup-ssl (if you need SSL in DEV)
+3. make dev-setup-local-ssl (if you need SSL in DEV)
 4. make up
 ```
 Enjoy!
