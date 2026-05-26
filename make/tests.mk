@@ -14,3 +14,7 @@ test-build:
 # $(ARGS) = <image_name>
 tmp-container:
 	docker run --rm -it --entrypoint sh $(ARGS)
+
+.PHONY: get-docker-ip
+get-docker-ip:
+	docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(COMPOSE_PROJECT_NAME)-php

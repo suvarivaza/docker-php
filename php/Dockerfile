@@ -29,7 +29,7 @@ USER root
 # Supported PHP extensions for install-php-extensions - https://github.com/mlocati/docker-php-extension-installer
 RUN set -ex; \
     apt update; \
-    install-php-extensions intl PDO json gd exif bcmath imap mysqli
+    install-php-extensions intl PDO json gd exif bcmath imap mysqli xmlrpc
 
 # Save the build arguments as a variable
 ARG USER_ID=1000
