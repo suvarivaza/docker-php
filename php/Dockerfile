@@ -51,10 +51,11 @@ USER www-data
 ############################################
 # Production Image
 ############################################
+#ARG APP_PATH
 
 # Since we're calling "base", production isn't
 # calling any of that permission stuff
 FROM base AS production
 
 # Copy our app files as www-data
-COPY --chown=www-data:www-data $APP_PATH /var/www/html
+#COPY --chown=www-data:www-data $APP_PATH /var/www/html
