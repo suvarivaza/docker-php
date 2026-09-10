@@ -6,15 +6,14 @@ services:
     restart: unless-stopped
     profiles: [ dev, prod ]
     ports:
-      # Открываем 80 и 443 порты на хосте
+      # open 80 and 443 ports
       - "80:80"
       - "443:443"
     volumes:
-      # Traefik следит за событиями Docker через сокет
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
     labels:
-      # Включить маршрутизацию Traefik для самого себя (Dashboard)
+      # Traefik Dashboard ON
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.${APP_URL}`)"
       - "traefik.http.routers.traefik.service=api@internal"
@@ -37,7 +36,7 @@ services:
     restart: unless-stopped
     tty: true
     environment:
-      # https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
+      # Info: https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
       - SSL_MODE=off
       - AUTORUN_ENABLED=false
       - PHP_MEMORY_LIMIT=512M
@@ -48,8 +47,8 @@ services:
       - APACHE_DOCUMENT_ROOT=${APP_WEBROOT:-/var/www/html}
       - NGINX_WEBROOT=${APP_WEBROOT:-/var/www/html}
     volumes:
-      # Монтируем проект внутрь контейнера
-      # APP_DIR - должна быть задана обязательно! Если не задана выводим - Set APP_DIR in .env!
+      # mount the project directory to /var/www/html
+      # APP_DIR - is required!
       - ../${APP_DIR:?Set APP_DIR in .env}:/var/www/html
       - ./nginx/custom.conf:/etc/nginx/server-opts.d/custom.conf
     depends_on:
@@ -58,9 +57,8 @@ services:
     networks:
       - net
     labels:
-      # Включаем Traefik
       - "traefik.enable=true"
-      - "traefik.http.services.php.loadbalancer.server.port=8080"  # Указываем внутренний порт контейнера
+      - "traefik.http.services.php.loadbalancer.server.port=8080"  # port of php-fpm
       - "traefik.http.routers.php.rule=Host(`${APP_URL}`)"
       - "traefik.http.routers.php.entrypoints=http,https"
       - "traefik.http.routers.php.tls=true"
@@ -72,7 +70,6 @@ services:
     profiles: [ dev, prod ]
     tty: true
     environment:
-      # Основные настройки MySQL
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
       - MYSQL_USER=${DB_USERNAME}
       - MYSQL_PASSWORD=${DB_PASSWORD}
@@ -113,7 +110,6 @@ services:
     networks:
       - net
     labels:
-      # Включаем Traefik
       - "traefik.enable=true"
       - "traefik.http.services.pma.loadbalancer.server.port=80"
       - "traefik.http.routers.pma.rule=Host(`pma.${APP_URL}`)"
@@ -129,16 +125,14 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      # APP_DIR - должна быть задана обязательно! Если не задана выводим - Set APP_DIR in .env!
+      # APP_DIR - is required!
       - ../${APP_DIR:?Set APP_DIR in .env}:/var/www
     working_dir: /var/www
     networks:
       - net
 
-# Определяем именованные тома для хранения данных
 volumes:
   redis:
 
-# Общая сеть между всеми сервисами
 networks:
   net:

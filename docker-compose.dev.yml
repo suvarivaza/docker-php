@@ -1,12 +1,11 @@
 services:
   traefik:
     command:
-       - "--configFile=/etc/traefik/traefik-dev.yml" # Используем внешний конфигурационный файл Traefik
+       - "--configFile=/etc/traefik/traefik-dev.yml"
     volumes:
-      # Монтируем config
       - "./traefik/config/traefik-dev.yml:/etc/traefik/traefik-dev.yml:ro"
 
-      # Монтируем самоподписанные сертификаты
+      # Certs for development
       - "./traefik/certs:/certs:ro"
       - "./traefik/config/dev-tls.yml:/etc/traefik/dynamic/dev-tls.yml:ro"
 
@@ -20,7 +19,7 @@ services:
       - PHP_DISPLAY_ERRORS=on
       - DEV_MODE=1
 
-  # Доступ с хоста только через localhost.
+  # Access from the host is only via localhost.
   mysql:
     ports:
       - '127.0.0.1:${DB_PORT:-3306}:3306'

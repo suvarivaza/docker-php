@@ -1,20 +1,20 @@
 services:
   traefik:
     command:
-      - "--configFile=/etc/traefik/traefik-prod.yml" # Используем внешний конфигурационный файл Traefik
+      - "--configFile=/etc/traefik/traefik-prod.yml"
     labels:
       # Let's Encrypt SSL Cert
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.tls.certresolver=le"
 
-      # Добавляем middleware с базовой авторизацией
+      # middleware with basic auth
       - "traefik.http.routers.traefik.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}"  # Формат: user:hashedpassword
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}"  # format user:hashedpassword
     volumes:
-      # Монтируем config
+      # mount the production configuration file
       - "./traefik/config/traefik-prod.yml:/etc/traefik/traefik-prod.yml:ro"
 
-      # для хранения SSL сертификатов
+      # mount the Let's Encrypt certificate storage'
       - "letsencrypt:/letsencrypt"
 
   php:
@@ -26,7 +26,7 @@ services:
       - "traefik.http.routers.php.tls.certresolver=le"
 
   mysql:
-    # Доступ через SSH-туннель на localhost сервера.
+    # Access only via localhost.
     ports:
       - '127.0.0.1:${DB_PORT:-3306}:3306'
 
@@ -36,7 +36,7 @@ services:
       - "traefik.http.routers.pma.tls=true"
       - "traefik.http.routers.pma.tls.certresolver=le"
 
-      # Middleware для базовой авторизации и ограничения по IP
+      # Middleware with basic auth and IP whitelist
       - "traefik.http.routers.pma.middlewares=pma-auth"
       - "traefik.http.middlewares.pma-auth.basicauth.users=${TRAEFIK_AUTH_PMA}"
       - "traefik.http.routers.pma.middlewares=pma-auth,pma-ipwhitelist"
