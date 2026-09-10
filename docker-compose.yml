@@ -45,11 +45,12 @@ services:
       - PHP_UPLOAD_MAX_FILE_SIZE=50M
       - PHP_MAX_EXECUTION_TIME=60
       - PHP_OPCACHE_ENABLE=1
-      - APACHE_DOCUMENT_ROOT=/var/www/html
-      - NGINX_WEBROOT=/var/www/html
+      - APACHE_DOCUMENT_ROOT=${APP_WEBROOT:-/var/www/html}
+      - NGINX_WEBROOT=${APP_WEBROOT:-/var/www/html}
     volumes:
       # Монтируем проект внутрь контейнера
-      - ../${APP_DIR}:/var/www/html
+      # APP_DIR - должна быть задана обязательно! Если не задана выводим - Set APP_DIR in .env!
+      - ../${APP_DIR:?Set APP_DIR in .env}:/var/www/html
       - ./nginx/custom.conf:/etc/nginx/server-opts.d/custom.conf
     depends_on:
       - mysql
@@ -128,7 +129,8 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - ../${APP_DIR}:/var/www
+      # APP_DIR - должна быть задана обязательно! Если не задана выводим - Set APP_DIR in .env!
+      - ../${APP_DIR:?Set APP_DIR in .env}:/var/www
     working_dir: /var/www
     networks:
       - net
