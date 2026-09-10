@@ -20,6 +20,15 @@ services:
       - PHP_DISPLAY_ERRORS=on
       - DEV_MODE=1
 
+  # Доступ с хоста только через localhost.
+  mysql:
+    ports:
+      - '127.0.0.1:${DB_PORT:-3306}:3306'
+
+  redis:
+    ports:
+      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
+
   phpmyadmin:
     ports:
       - '${PMA_PORT:-8080}:80'

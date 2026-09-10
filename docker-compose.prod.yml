@@ -25,6 +25,11 @@ services:
       - "traefik.http.routers.php.tls=true"
       - "traefik.http.routers.php.tls.certresolver=le"
 
+  mysql:
+    # Доступ через SSH-туннель на localhost сервера.
+    ports:
+      - '127.0.0.1:${DB_PORT:-3306}:3306'
+
   phpmyadmin:
     labels:
       # Let's Encrypt SSL Cert
