@@ -28,8 +28,8 @@ services:
       context: ./php
       dockerfile: Dockerfile
       args:
-        USER_ID: ${USER_ID}
-        GROUP_ID: ${GROUP_ID}
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
         PHP_WEBSERVER: ${PHP_WEBSERVER:-nginx}
         PHP_VERSION: ${PHP_VERSION:-8.2}
     container_name: ${COMPOSE_PROJECT_NAME}-php
