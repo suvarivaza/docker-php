@@ -31,8 +31,8 @@ services:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
 #        APP_PATH: ${APP_PATH}
-        PHP_WEBSERVER: ${PHP_WEBSERVER}
-        PHP_VERSION: ${PHP_VERSION}
+        PHP_WEBSERVER: ${PHP_WEBSERVER:-nginx}
+        PHP_VERSION: ${PHP_VERSION:-8.2}
     container_name: ${COMPOSE_PROJECT_NAME}-php
     profiles: [ dev, prod ]
     restart: unless-stopped

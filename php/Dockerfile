@@ -5,8 +5,8 @@
 ############################################
 
 # Объявляем аргумент ДО первого FROM
-ARG PHP_WEBSERVER=nginx
-ARG PHP_VERSION=7.4
+ARG PHP_WEBSERVER
+ARG PHP_VERSION
 
 FROM serversideup/php:${PHP_VERSION}-fpm-${PHP_WEBSERVER} as base
 
