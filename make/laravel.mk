@@ -5,7 +5,7 @@
 .PHONY: laravel-install
 laravel-install: ## Install Laravel
 	docker compose exec php composer create-project laravel/laravel example-app \
-	&& mv -f $(APP_PATH)/example-app/* $(APP_PATH)/ && mv -f $(APP_PATH)/example-app/.* $(APP_PATH)/ && rm -rf $(APP_PATH)/example-app
+	&& mv -f ../$(APP_DIR)/example-app/* ../$(APP_DIR)/ && mv -f ../$(APP_DIR)/example-app/.* ../$(APP_DIR)/ && rm -rf ../$(APP_DIR)/example-app
 
 .PHONY: composer-install
 composer-install: ## install composer packages
