@@ -21,6 +21,30 @@ cd docker
 make help
 ```
 
+### Project location
+
+Set `APP_PATH` in `docker/.env`. Relative paths are resolved from the Docker
+configuration directory. Absolute paths and paths containing spaces are supported.
+
+| Layout | APP_PATH |
+| --- | --- |
+| `workspace/docker` next to `workspace/src` | `../src` |
+| `project/docker` inside the project | `..` |
+| Project in another location | `/srv/my-project` |
+
+Run commands from the Docker directory (`cd docker`), or use `make -C /path/to/docker`.
+For existing configurations, replace `APP_DIR=src` with `APP_PATH=../src`.
+`APP_WEBROOT` is a separate path inside the container; use
+`/var/www/html/public` for Laravel.
+
+When Docker is inside the application, keep its directory outside the public
+webroot. The Laravel `public` directory provides this separation.
+
+To download application files, set `SSH` and `SSH_APP_PATH` (the remote project
+path), then run `make download-files`. Files are extracted into local `APP_PATH`;
+existing application files may be replaced. `.env`, `.git`, directories named
+`docker`, and the local Docker configuration directory are excluded.
+
 ### DEV
 
 ```

@@ -4,9 +4,22 @@
 
 .PHONY: laravel-install
 laravel-install: ## Install Laravel
-	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME APP_DIR)
-	docker compose exec php composer create-project laravel/laravel example-app \
-	&& mv -f ../$(APP_DIR)/example-app/* ../$(APP_DIR)/ && mv -f ../$(APP_DIR)/example-app/.* ../$(APP_DIR)/ && rm -rf ../$(APP_DIR)/example-app
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME APP_PATH)
+	@set -eu; \
+	test -d "$$APP_PATH"; \
+	docker compose exec php composer create-project laravel/laravel example-app; \
+	for entry in "$$APP_PATH"/example-app/* "$$APP_PATH"/example-app/.[!.]* "$$APP_PATH"/example-app/..?*; do \
+		[ -e "$$entry" ] || [ -L "$$entry" ] || continue; \
+		name=$${entry##*/}; \
+		if [ -e "$$APP_PATH/$$name" ] || [ -L "$$APP_PATH/$$name" ]; then \
+			printf 'Destination already exists: %s\n' "$$APP_PATH/$$name" >&2; exit 1; \
+		fi; \
+	done; \
+	for entry in "$$APP_PATH"/example-app/* "$$APP_PATH"/example-app/.[!.]* "$$APP_PATH"/example-app/..?*; do \
+		[ -e "$$entry" ] || [ -L "$$entry" ] || continue; \
+		mv "$$entry" "$$APP_PATH/"; \
+	done; \
+	rmdir "$$APP_PATH/example-app"
 
 .PHONY: composer-install
 composer-install: ## install composer packages

@@ -48,8 +48,8 @@ services:
       - NGINX_WEBROOT=${APP_WEBROOT:-/var/www/html}
     volumes:
       # mount the project directory to /var/www/html
-      # APP_DIR - is required!
-      - ../${APP_DIR:?Set APP_DIR in .env}:/var/www/html
+      # APP_PATH - is required!
+      - ${APP_PATH:?Set APP_PATH in .env}:/var/www/html
       - ./nginx/custom.conf:/etc/nginx/server-opts.d/custom.conf
     depends_on:
       mysql:
@@ -128,8 +128,8 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      # APP_DIR - is required!
-      - ../${APP_DIR:?Set APP_DIR in .env}:/var/www
+      # APP_PATH - is required!
+      - ${APP_PATH:?Set APP_PATH in .env}:/var/www
     working_dir: /var/www
     networks:
       - net
