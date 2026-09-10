@@ -4,14 +4,17 @@
 
 .PHONY: up
 up: ## Start services: docker compose up -d $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose up -d $(ARGS)
 
 .PHONY: stop
 stop: ## Stop services: docker compose stop $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose stop $(ARGS)
 
 .PHONY: restart
 restart: ## Restart services: docker compose restart $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose restart $(ARGS)
 
 # --------------------
@@ -20,11 +23,13 @@ restart: ## Restart services: docker compose restart $(ARGS)
 
 .PHONY: reset
 reset: ## Clear reset ALL services (containers + network): docker compose down && docker compose up -d
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose down
 	docker compose up -d
 
 .PHONY: clear-reset
 clear-reset: ## Clear reset with build --no-cache:  docker compose down && docker compose build --no-cache && docker compose up -d
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose down
 	docker compose build --no-cache
 	docker compose up -d
@@ -36,27 +41,33 @@ clear-reset: ## Clear reset with build --no-cache:  docker compose down && docke
 
 .PHONY: build
 build: ## Build services: docker compose build $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose build $(ARGS)
 
 .PHONY: clear-build
 clear-build: ## Build services --no-cache: docker compose build --no-cache $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose build --no-cache $(ARGS)
 
 .PHONY: rebuild
 rebuild: ## Build with cache and start (use if files changed): docker compose up -d --build $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose up -d --build $(ARGS)
 
 .PHONY: clear-rebuild
 clear-rebuild: ##
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose build --no-cache $(ARGS)
 	docker compose up -d $(ARGS)
 
 .PHONY: recreate
 recreate:  ## recreate containers with no build (use if .env file changed): docker compose up -d --force-recreate $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose up -d --force-recreate $(ARGS)
 
 .PHONY: build-debug
 build-debug: ## rebuild with debug mode: docker compose build --no-cache $(ARGS) --progress=plain
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose build --no-cache $(ARGS) --progress=plain
 
 
@@ -66,14 +77,17 @@ build-debug: ## rebuild with debug mode: docker compose build --no-cache $(ARGS)
 
 .PHONY: down
 down: ## Stop and remove containers + networks: docker compose down
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose down
 
 .PHONY: down-images
 down-images: ## Remove containers + networks + images: docker compose down --rmi all
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose down --rmi all
 
 .PHONY: down-volumes
 down-volumes: ## Remove containers + networks + volumes (DANGER): docker compose down -v
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	@read -p "⚠️  This will DELETE containers + networks + volumes!!! Continue? (yes/no): " confirm && \
 	if [ "$$confirm" = "yes" ]; then \
 		docker compose down -v; \
@@ -83,14 +97,17 @@ down-volumes: ## Remove containers + networks + volumes (DANGER): docker compose
 
 .PHONY: rm
 rm: ## strict remove (fails if running): docker compose rm $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose rm $(ARGS)
 
 .PHONY: rm-force
 rm-force: ## stop + remove: docker compose rm -s $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose rm -s $(ARGS)
 
 .PHONY: rm-volumes
 rm-volumes: ## Remove containers + volumes (DANGER): docker compose rm -v $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	@read -p "⚠️  This will DELETE containers + volumes!!! Continue? (yes/no): " confirm && \
 	if [ "$$confirm" = "yes" ]; then \
 		docker compose rm -v $(ARGS); \
@@ -105,10 +122,12 @@ rm-volumes: ## Remove containers + volumes (DANGER): docker compose rm -v $(ARGS
 
 .PHONY: shell
 shell: ## Connect to service: docker compose exec $(ARGS) sh
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose exec $(ARGS) sh
 
 .PHONY: shell-root
 shell-root: ## Connect to service as root: docker compose exec -u 0 $(ARGS) sh
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose exec -u 0 $(ARGS) sh
 
 .PHONY: connect
@@ -123,14 +142,17 @@ connect: shell
 
 .PHONY: logs
 logs: ## Logs: docker compose logs -f --tail=100 $(ARGS)
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose logs -f --tail=100 $(ARGS)
 
 .PHONY: ps
 ps: ## Show containers: docker compose ps
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose ps
 
 .PHONY: config
 config: ## Compose config: docker compose config
+	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME)
 	docker compose config
 
 .PHONY: stats

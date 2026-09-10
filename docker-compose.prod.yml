@@ -9,7 +9,7 @@ services:
 
       # middleware with basic auth
       - "traefik.http.routers.traefik.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}"  # format user:hashedpassword
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH:?Set TRAEFIK_AUTH in .env}"  # format user:hashedpassword
     volumes:
       # mount the production configuration file
       - "./traefik/config/traefik-prod.yml:/etc/traefik/traefik-prod.yml:ro"
@@ -38,7 +38,7 @@ services:
 
       # Middleware with basic auth and IP whitelist
       - "traefik.http.routers.pma.middlewares=pma-auth"
-      - "traefik.http.middlewares.pma-auth.basicauth.users=${TRAEFIK_AUTH_PMA}"
+      - "traefik.http.middlewares.pma-auth.basicauth.users=${TRAEFIK_AUTH_PMA:?Set TRAEFIK_AUTH_PMA in .env}"
       - "traefik.http.routers.pma.middlewares=pma-auth,pma-ipwhitelist"
       - "traefik.http.middlewares.pma-ipwhitelist.ipwhitelist.sourcerange=${ALLOWED_IP_PMA:-0.0.0.0/0}" # если ALLOWED_IP_PMA не задана то будет открыт доступ со всех адресов
 

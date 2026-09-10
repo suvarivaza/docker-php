@@ -14,6 +14,12 @@ endif
 # Includes
 # ----------------------
 
+# Check only variables required by the command being executed.
+# Values are inspected by Make without interpolating secrets into shell commands.
+define require-vars
+$(foreach name,$(1),$(if $(strip $($(name))),,$(error Set $(name) in .env or pass it to make)))
+endef
+
 -include .env
 -include make/*.mk
 
@@ -39,7 +45,7 @@ help:
 
 
 
-# важно! игнорировать любой неизвестный target! должно быть в конце корневого Makefile!
+# important! ignore any unknown target! must be at the end of the root Makefile!
 %:
 	@:
 

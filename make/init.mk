@@ -33,12 +33,14 @@ set-userid-groupid:
 
 .PHONY: set-traefik-prod-email
 set-traefik-prod-email:
+	$(call require-vars,TRAEFIK_DOMAIN_EMAIL)
 	@sed -i '' 's|email: .*|email: "$(TRAEFIK_DOMAIN_EMAIL)"|' ./traefik/config/traefik-prod.yml
 	@echo "✅ Email Traefik updated $(TRAEFIK_DOMAIN_EMAIL)"
 
 
 .PHONY: set-dev-local-hosts
 set-dev-local-hosts: ## Setup dev local hosts (use this command only for dev!)
+	$(call require-vars,APP_URL)
 	echo "==== Setup dev local hosts ===="
 	@if ! grep -q "^127.0.0.1 $(APP_URL)$$" /etc/hosts; then \
 		echo "127.0.0.1 $(APP_URL)" | sudo tee -a /etc/hosts > /dev/null; \

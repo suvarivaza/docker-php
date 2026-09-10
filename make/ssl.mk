@@ -43,6 +43,7 @@ dev-setup-local-ssl: ## Setup local ssl cert for dev
 
 .PHONY: create-local-ssl-cert-mkcert
 create-local-ssl-cert-mkcert: ## Generate SSL cert for local domains with mkcert (recommend!)
+	$(call require-vars,APP_URL)
 	echo "Creating SSL certs with mkcert";
 	brew install mkcert
 	mkcert -install && \
@@ -53,6 +54,7 @@ create-local-ssl-cert-mkcert: ## Generate SSL cert for local domains with mkcert
 
 .PHONY: create-local-ssl-cert-openssl
 create-local-ssl-cert-openssl:
+	$(call require-vars,APP_URL)
 	echo "Creating SSL certs with openssl";
 	openssl req -x509 -nodes -newkey rsa:2048 \
       -keyout "./traefik/certs/$(APP_URL).key" \
@@ -63,6 +65,7 @@ create-local-ssl-cert-openssl:
 # Spaces are important!
 .PHONY: add-traefik-local-cert-in-config
 add-traefik-local-cert-in-config:
+	$(call require-vars,APP_URL)
 	rm ./traefik/config/dev-tls.yml
 	echo "Adding SSL certs to ./traefik/config/dev-tls.yml"; \
 	echo "tls:\n  certificates:\n    - certFile: \"/certs/$(APP_URL).crt\"\n      keyFile: \"/certs/$(APP_URL).key\"" > ./traefik/config/dev-tls.yml

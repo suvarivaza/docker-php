@@ -1,8 +1,8 @@
 #https://serversideup.net/open-source/docker-php/docs
 
-#base — образ serversideup/php + общие расширения PHP
-#├── development — настройка UID/GID для локальной разработки
-#└── production — наследует base без дополнительных изменений
+#base — image serversideup/php + PHP extensions
+#├── development — setup UID/GID for local development
+#└── production — implements base
 
 # docker-compose.dev.yml
 #build:
@@ -16,7 +16,6 @@
 ############################################
 # Base Image
 ############################################
-# значения по умолчанию - если не переданы при сборке через docker compose
 ARG PHP_WEBSERVER=nginx
 ARG PHP_VERSION=8.2
 
@@ -45,7 +44,6 @@ FROM base AS development
 # Switch to root so we can do root things
 USER root
 
-# значения по умолчанию - если не переданы при сборке через docker compose
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG PHP_WEBSERVER=nginx

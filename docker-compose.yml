@@ -15,7 +15,7 @@ services:
     labels:
       # Traefik Dashboard ON
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${APP_URL}`)"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${APP_URL:?Set APP_URL in .env}`)"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.entrypoints=http,https"
       - "traefik.http.routers.traefik.tls=true"
@@ -52,14 +52,16 @@ services:
       - ../${APP_DIR:?Set APP_DIR in .env}:/var/www/html
       - ./nginx/custom.conf:/etc/nginx/server-opts.d/custom.conf
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - net
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.php.loadbalancer.server.port=8080"  # port of php-fpm
-      - "traefik.http.routers.php.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.php.rule=Host(`${APP_URL:?Set APP_URL in .env}`)"
       - "traefik.http.routers.php.entrypoints=http,https"
       - "traefik.http.routers.php.tls=true"
 
@@ -70,17 +72,17 @@ services:
     profiles: [ dev, prod ]
     tty: true
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-      - MYSQL_USER=${DB_USERNAME}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      - MYSQL_USER=${DB_USERNAME:?Set DB_USERNAME in .env}
+      - MYSQL_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      - MYSQL_DATABASE=${DB_DATABASE:?Set DB_DATABASE in .env}
     volumes:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - net
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
+      test: [ "CMD", "mysqladmin", "ping", "-uroot", "-p${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}" ]
       retries: 3
       timeout: 5s
 
@@ -106,13 +108,14 @@ services:
     environment:
       - PMA_HOST=mysql
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - net
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.pma.loadbalancer.server.port=80"
-      - "traefik.http.routers.pma.rule=Host(`pma.${APP_URL}`)"
+      - "traefik.http.routers.pma.rule=Host(`pma.${APP_URL:?Set APP_URL in .env}`)"
       - "traefik.http.routers.pma.entrypoints=http,https"
       - "traefik.http.routers.pma.tls=true"
 
