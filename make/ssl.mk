@@ -66,7 +66,6 @@ create-local-ssl-cert-openssl:
 .PHONY: add-traefik-local-cert-in-config
 add-traefik-local-cert-in-config:
 	$(call require-vars,APP_URL)
-	rm ./traefik/config/dev-tls.yml
 	echo "Adding SSL certs to ./traefik/config/dev-tls.yml"; \
 	echo "tls:\n  certificates:\n    - certFile: \"/certs/$(APP_URL).crt\"\n      keyFile: \"/certs/$(APP_URL).key\"" > ./traefik/config/dev-tls.yml
 
