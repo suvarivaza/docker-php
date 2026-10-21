@@ -5,8 +5,8 @@
 COMMAND := $(firstword $(MAKECMDGOALS))
 ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 
-# maximum 4 arguments after command: make up db redis backend
-ifneq ($(filter 5,$(words $(ARGS))),)
+# Максимум 4 аргумента после команды: make up db redis backend
+ifneq ($(word 5,$(ARGS)),)
   $(error Too many args)
 endif
 

@@ -1,5 +1,12 @@
-#!/bin/bash
-cat > ../traefik/config/traefik-prod.yml <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${TRAEFIK_DOMAIN_EMAIL:?Задайте TRAEFIK_DOMAIN_EMAIL}"
+
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+docker_dir=$(cd "$script_dir/.." && pwd -P)
+
+cat > "$docker_dir/traefik/config/traefik-prod.yml" <<EOF
 log:
   level: INFO
 
@@ -28,6 +35,6 @@ certificatesResolvers:
   le:
     acme:
       tlsChallenge: true
-      email: "$TRAEFIK_EMAIL"
+      email: "$TRAEFIK_DOMAIN_EMAIL"
       storage: "/letsencrypt/acme.json"
 EOF

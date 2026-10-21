@@ -44,7 +44,7 @@ db-import: ## Replace database from SQL dump: make db-import DB_FILE=path/db.sql
 .PHONY: db-dump
 db-dump: ## dump db
 	$(call require-vars,COMPOSE_FILE COMPOSE_PROFILES COMPOSE_PROJECT_NAME DB_USERNAME DB_PASSWORD DB_DATABASE)
-	docker compose exec -T mysql mysqldump --no-tablespaces -u$(DB_USERNAME) -p$(DB_PASSWORD) $(DB_DATABASE) > db.sql
-
+	docker compose exec -T -e MYSQL_PWD="$$DB_PASSWORD" mysql \
+		mysqldump --no-tablespaces -u "$$DB_USERNAME" "$$DB_DATABASE" > db.sql
 
 

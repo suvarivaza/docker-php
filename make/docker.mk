@@ -134,7 +134,7 @@ shell-root: ## Connect to service as root: docker compose exec -u 0 $(ARGS) sh
 connect: shell
 
 .PHONY: sh
-connect: shell
+sh: shell
 
 # --------------------
 ## Docker System
@@ -190,11 +190,11 @@ docker-clear: ## Waring! Remove unused containers/networks (safe): docker system
 
 .PHONY: docker-hard-clear
 docker-hard-clear: # Remove ALL! (DANGER!): docker system prune -a --volumes
-	@read -p "⚠️  This will DELETE ALL Docker data with volumes!!! Continue? (yes/no): " confirm && \
-	if [ "$$confirm" = "yes" ]; then \
+	@read -p "⚠️  Это удалит ВСЕ неиспользуемые Docker-данные вместе с томами. Введите prune-all-with-volumes: " confirm && \
+	if [ "$$confirm" = "prune-all-with-volumes" ]; then \
 		docker system prune -a --volumes; \
 	else \
-		echo "Cancelled"; \
+		echo "Отменено"; \
 	fi
 
 # Docker danger commands #######
@@ -204,8 +204,8 @@ docker-hard-clear: # Remove ALL! (DANGER!): docker system prune -a --volumes
 # Жестко - но зато чисто! Проверено - работает отлично!
 .PHONY: clear-start-delete-docker
 clear-start-delete-docker: # DANGER! Delete ALL docker!!!
-	@read -p "⚠️  Вы точно уверены? Это УДАЛИТ docker с сервера целиком!!! $(DB_NAME)! (yes/no): " confirm && \
-	if [ "$$confirm" = "yes" ]; then \
+	@read -p "⚠️  Это ПОЛНОСТЬЮ УДАЛИТ /var/lib/docker со всеми проектами и томами. Введите delete-var-lib-docker: " confirm && \
+	if [ "$$confirm" = "delete-var-lib-docker" ]; then \
 		systemctl stop docker && \
 		rm -rf /var/lib/docker && \
 		systemctl start docker && \
@@ -218,21 +218,43 @@ clear-start-delete-docker: # DANGER! Delete ALL docker!!!
 # остановить все запущенные контейнеры
 .PHONY: docker-stop-all-containers
 docker-stop-all-containers:
-	docker stop $(docker ps -q)
+	@read -p "⚠️  Это остановит ВСЕ запущенные Docker-контейнеры на хосте. Введите stop-all: " confirm && \
+	if [ "$$confirm" = "stop-all" ]; then \
+		containers=$$(docker ps -q); \
+		if [ -n "$$containers" ]; then docker stop $$containers; else echo "Нет запущенных контейнеров"; fi; \
+	else \
+		echo "Отменено"; \
+	fi
 
 # удалить все незапущенные контейнеры
 .PHONY: docker-rm-all-containers
 docker-rm-all-containers:
-	docker rm $(docker ps -a -q)
+	@read -p "⚠️  Это удалит ВСЕ остановленные Docker-контейнеры на хосте. Введите remove-all: " confirm && \
+	if [ "$$confirm" = "remove-all" ]; then \
+		containers=$$(docker ps -a -q --filter status=created --filter status=exited --filter status=dead); \
+		if [ -n "$$containers" ]; then docker rm $$containers; else echo "Нет остановленных контейнеров"; fi; \
+	else \
+		echo "Отменено"; \
+	fi
 
 # удалить все образы
 .PHONY: docker-rm-all-images
 docker-rm-all-images:
-	docker rmi $(docker images -q)
+	@read -p "⚠️  Это удалит ВСЕ неиспользуемые Docker-образы на хосте. Введите remove-images: " confirm && \
+	if [ "$$confirm" = "remove-images" ]; then \
+		docker image prune -a; \
+	else \
+		echo "Отменено"; \
+	fi
 
 .PHONY: docker-delete-all-volumes
 docker-delete-all-volumes:
-	docker volume prune -f
+	@read -p "⚠️  Это удалит ВСЕ неиспользуемые Docker-тома на хосте. Введите remove-volumes: " confirm && \
+	if [ "$$confirm" = "remove-volumes" ]; then \
+		docker volume prune; \
+	else \
+		echo "Отменено"; \
+	fi
 
 
 # --------------------

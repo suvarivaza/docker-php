@@ -21,7 +21,7 @@ ARG PHP_VERSION=8.2
 
 #https://serversideup.net/open-source/docker-php/docs/getting-started/installation
 #FROM serversideup/php:8.2-fpm-apache as base
-FROM serversideup/php:${PHP_VERSION}-fpm-${PHP_WEBSERVER} as base
+FROM serversideup/php:${PHP_VERSION}-fpm-${PHP_WEBSERVER} AS base
 
 # Switch to root so we can do root things
 USER root
@@ -30,7 +30,14 @@ USER root
 # https://serversideup.net/open-source/docker-php/docs/customizing-the-image/installing-additional-php-extensions
 # Supported PHP extensions for install-php-extensions - https://github.com/mlocati/docker-php-extension-installer
 RUN set -ex; \
-    apt update; \
+    . /etc/os-release; \
+    apt_update_options=''; \
+    if [ "$VERSION_CODENAME" = "bullseye" ]; then \
+        sed -i 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list; \
+        apt_update_options='-o Acquire::Check-Valid-Until=false'; \
+    fi; \
+    rm -rf /var/lib/apt/lists/*; \
+    apt-get $apt_update_options update; \
     install-php-extensions intl PDO json gd exif bcmath imap mysqli xmlrpc
 
 # Drop back to our unprivileged user

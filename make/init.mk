@@ -34,7 +34,8 @@ set-userid-groupid:
 .PHONY: set-traefik-prod-email
 set-traefik-prod-email:
 	$(call require-vars,TRAEFIK_DOMAIN_EMAIL)
-	@sed -i '' 's|email: .*|email: "$(TRAEFIK_DOMAIN_EMAIL)"|' ./traefik/config/traefik-prod.yml
+	@sed -i.bak 's|email: .*|email: "$(TRAEFIK_DOMAIN_EMAIL)"|' ./traefik/config/traefik-prod.yml && \
+	rm -f ./traefik/config/traefik-prod.yml.bak
 	@echo "✅ Email Traefik updated $(TRAEFIK_DOMAIN_EMAIL)"
 
 
