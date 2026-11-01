@@ -16,7 +16,8 @@ services:
       - '${PHP_PORT:-81}:8080'
     environment:
       # https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
-      - PHP_DISPLAY_ERRORS=on
+      # Предупреждения PHP 8.2 не должны повреждать HTML и сжатые ответы Joomla/JCH Optimize.
+      - PHP_DISPLAY_ERRORS=off
       - DEV_MODE=1
 
   # Access from the host is only via localhost.
