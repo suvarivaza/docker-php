@@ -17,7 +17,7 @@ services:
     environment:
       # https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
       # Предупреждения PHP 8.2 не должны повреждать HTML и сжатые ответы Joomla/JCH Optimize.
-      - PHP_DISPLAY_ERRORS=off
+      - PHP_DISPLAY_ERRORS=on
       - DEV_MODE=1
       # В разработке PHP должен сразу замечать изменения файлов без перезапуска контейнера.
       - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
