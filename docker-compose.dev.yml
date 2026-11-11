@@ -19,6 +19,9 @@ services:
       # Предупреждения PHP 8.2 не должны повреждать HTML и сжатые ответы Joomla/JCH Optimize.
       - PHP_DISPLAY_ERRORS=off
       - DEV_MODE=1
+      # В разработке PHP должен сразу замечать изменения файлов без перезапуска контейнера.
+      - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
+      - PHP_OPCACHE_REVALIDATE_FREQ=0
 
   # Access from the host is only via localhost.
   mysql:
